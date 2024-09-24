@@ -1,89 +1,72 @@
-# Email Management Application
+# Mail: A Web-based Email Client
 
 ## Overview
 
-This project is a web-based email client that allows users to manage their inbox, sent emails, and archived emails. It provides a range of functionalities, such as sending new emails, viewing email content, archiving/unarchiving emails, and replying to received emails. The application interacts with a backend API to handle email data.
+This project is a web-based email client built with Django for the backend and JavaScript for the frontend. The application allows users to send, receive, and manage emails through a simple interface. It provides functionalities such as viewing inbox, sent mail, and archived mail, composing new emails, and replying to existing emails. API endpoints are used for interacting with the email data stored in the application’s database.
 
 ## Features
 
-1. **Send Mail**  
-   When a user submits the email composition form, a POST request is made to `/emails`. The form collects the following data:
-   - Recipients
-   - Subject
-   - Email Body
+### 1. **Send Email**
+   Users can compose and send emails using the provided form. A POST request is made to `/emails` to send the email, and the sent mailbox is loaded once the email is successfully sent.
 
-   After the email is successfully sent, the user’s **Sent** mailbox is automatically loaded.
-
-2. **Mailbox View**  
-   Users can navigate between three different mailboxes: **Inbox**, **Sent**, and **Archive**. Each mailbox shows the relevant emails, and the system distinguishes between read and unread emails with background colors:
-   - **Unread emails** have a white background.
-   - **Read emails** have a gray background.
+### 2. **View Mailboxes**
+   The app supports three main mailboxes:
+   - **Inbox**: Displays all received emails.
+   - **Sent**: Displays all sent emails.
+   - **Archive**: Displays archived emails.
    
-   Emails in the mailbox view display the following details:
-   - Sender
-   - Subject
-   - Timestamp
+   Each mailbox is populated by sending a GET request to `/emails/<mailbox>`. Emails are displayed in reverse chronological order, with unread emails having a white background and read emails having a gray background.
 
-3. **View Email**  
-   When a user clicks on an email in any mailbox, they are taken to a detailed view of the email, where the following information is shown:
+### 3. **View Email Details**
+   Clicking on any email in a mailbox shows the full details of that email, including:
    - Sender
    - Recipients
    - Subject
    - Timestamp
-   - Body
+   - Email body
+   
+   This is done by sending a GET request to `/emails/<email_id>`. The email is marked as read once it is opened by making a PUT request to `/emails/<email_id>`.
 
-   The email is automatically marked as read by making a `PUT` request to `/emails/<email_id>`.
+### 4. **Archive/Unarchive Emails**
+   Users can archive emails from their inbox and unarchive them when viewing archived mail. The archive status of an email can be changed using a PUT request to `/emails/<email_id>`. The inbox is reloaded after an email is archived or unarchived.
 
-4. **Archive/Unarchive Emails**  
-   Users can archive or unarchive received emails by clicking a button when viewing an email. Archiving is not applicable to emails in the Sent mailbox. Once an email is archived or unarchived, the user’s inbox is reloaded.
-
-   - To archive/unarchive an email, a `PUT` request is made to `/emails/<email_id>` to update the email’s archived status.
-
-5. **Reply to Emails**  
-   Users can reply to an email by clicking the **Reply** button. This action will take the user to the email composition form, which will be pre-filled with:
+### 5. **Reply to Emails**
+   Users can reply to an email by clicking the **Reply** button. The compose form is pre-filled with:
    - The original sender as the recipient.
-   - The subject, prefixed with `Re:`, unless it already starts with `Re:`.
-   - A quoted version of the original message in the body, along with a timestamp of when the email was sent.
+   - The subject line prefixed with `Re:`.
+   - The body of the original email as a quoted message.
 
 ## API Endpoints
 
-- `POST /emails`  
-   Used for sending new emails.
+- **GET /emails/<mailbox>**  
+  Fetches all emails in a specified mailbox (inbox, sent, archive).
 
-- `GET /emails/<mailbox>`  
-   Fetches emails from the selected mailbox (Inbox, Sent, Archive).
+- **GET /emails/<email_id>**  
+  Retrieves details of a specific email.
 
-- `GET /emails/<email_id>`  
-   Retrieves details of a specific email.
+- **POST /emails**  
+  Sends a new email. Requires `recipients`, `subject`, and `body`.
 
-- `PUT /emails/<email_id>`  
-   Updates the status of an email (read, archived, etc.).
-
-## Implementation Details
-
-- **Sending Emails**: The email composition form submits the data via a `POST` request to `/emails`. Once the request is successful, the sent mailbox is automatically loaded using a `GET` request to `/emails/sent`.
-  
-- **Mailbox Rendering**: Each mailbox is rendered dynamically based on the data fetched via a `GET` request to `/emails/<mailbox>`. Emails are rendered as individual `div` elements, with their appearance differing based on their read/unread status.
-  
-- **Viewing Emails**: When an email is clicked, a `GET` request to `/emails/<email_id>` fetches its details, and the email view is updated to show the content. The email is marked as read using a `PUT` request.
-
-- **Archiving**: Users can archive or unarchive emails via a button in the email view. This action triggers a `PUT` request to `/emails/<email_id>`, updating the archive status, followed by reloading the inbox.
-
-- **Replying to Emails**: Upon clicking **Reply**, the email composition form is pre-filled with data from the original email using JavaScript. The recipient, subject, and body are automatically set.
+- **PUT /emails/<email_id>**  
+  Updates the status of an email, including marking it as read or changing its archived status.
 
 ## Technologies Used
 
+- **Backend**: Django
 - **Frontend**: JavaScript, HTML, CSS
-- **Backend API**: The application communicates with an external API that handles email storage, retrieval, and updates.
+- **Database**: SQLite (configured through Django)
 
-## Setup
+## Setup Instructions
 
-1. Clone the repository.
-2. Open `index.html` in your browser to launch the application.
-3. Ensure the backend API is running and accessible.
+1. **Download the Code**  
+   Clone the repository and unzip it to your desired directory.
 
-## Future Improvements
+2. **Install Dependencies**  
+   Install Django and any other dependencies with `pip install -r requirements.txt`.
 
-- Implement user authentication.
-- Add pagination for large inboxes.
-- Support for rich text in the email body.
+3. **Run Database Migrations**  
+   Initialize the database with the following commands:
+   ```bash
+   python manage.py makemigrations mail
+   python manage.py migrate
+4. python manage.py runserver
